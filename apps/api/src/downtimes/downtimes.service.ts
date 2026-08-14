@@ -52,6 +52,13 @@ export class DowntimesService {
           input.machineId,
           input.componentId,
         );
+        const openDowntime: Pick<Downtime, "id"> | null =
+          await transaction.downtime.findFirst({
+            where: { machineId: input.machineId, endedAt: null },
+            select: { id: true },
+          });
+        if (openDowntime)
+          throw new ConflictException("Machine already has an open downtime");
         const createdDowntime: Downtime = await transaction.downtime.create({
           data: {
             machineId: input.machineId,

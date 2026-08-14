@@ -1,12 +1,12 @@
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { apiRequest } from "../../shared/api/http-client";
+import type { MachineDetail } from "../../shared/api/types";
+import { Icon } from "../../shared/ui/icon";
 
-interface MachineDetail {
-  readonly id: string;
-  readonly code: string;
-  readonly components: ReadonlyArray<{ readonly id: string; readonly name: string }>;
+interface DashboardMachine {
+  status: "DOWN" | "RUNNING";
 }
 
 const DOWNTIME_TYPES = [
@@ -19,23 +19,43 @@ const DOWNTIME_TYPES = [
   { value: "OTHER", label: "Autre" },
 ] as const;
 
+function formatElapsed(seconds: number): string {
+  const hh = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  return `${hh}:${mm}:${ss}`;
+}
+
 export function DeclareDowntimePage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const machineCode = params.get("machine") ?? "MA03";
-  const machineQuery = useQuery({
-    queryKey: ["machine", machineCode],
-    queryFn: () => apiRequest<MachineDetail>(`/machines/${machineCode}`),
-  });
+  const [elapsed, setElapsed] = useState(0);
   const [type, setType] = useState("");
   const [componentId, setComponentId] = useState("");
   const [cause, setCause] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const timer = window.setInterval(() => setElapsed((value) => value + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const machineQuery = useQuery({
+    queryKey: ["machine", machineCode],
+    queryFn: () => apiRequest<MachineDetail>(`/machines/${machineCode}`),
+  });
   const components = useMemo(
     () => machineQuery.data?.components ?? [],
     [machineQuery.data],
   );
+
+  const dashboardQuery = useQuery({
+    queryKey: ["dashboard", machineCode],
+    queryFn: () => apiRequest<DashboardMachine>(`/dashboard/${machineCode}`),
+  });
+
+  const isDown = dashboardQuery.data?.status === "DOWN";
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -62,72 +82,154 @@ export function DeclareDowntimePage() {
   }
 
   return (
-    <div className="space-y-4">
-      <Link to="/" className="text-sm text-[var(--color-primary)]">
-        ← Retour
-      </Link>
-      <div className="flex items-start justify-between gap-3">
-        <h1 className="text-xl font-semibold">Déclaration de Panne / Arrêt</h1>
-        <span className="badge badge-danger">CHRONO</span>
+    <div className="container mx-auto flex max-w-3xl flex-col gap-lg p-margin-mobile md:p-margin-desktop">
+      <div>
+        <div className="mb-sm flex items-start justify-between">
+          <h2 className="text-headline-lg-mobile font-bold text-on-surface md:text-headline-lg">
+            Déclaration de Panne / Arrêt
+          </h2>
+          <div className="flex animate-pulse items-center gap-2 rounded bg-error px-3 py-1 text-on-error shadow-sm">
+            <Icon name="timer" className="text-[20px]" />
+            <span className="font-bold tabular-nums">{formatElapsed(elapsed)}</span>
+          </div>
+        </div>
+        <p className="text-body-md text-on-surface-variant">
+          Renseignez les détails de l&apos;arrêt pour {machineCode}. Ces informations
+          sont cruciales pour le suivi TRG.
+        </p>
       </div>
-      <p className="text-sm text-[var(--color-on-surface-variant)]">
-        Renseignez les détails de l&apos;arrêt pour {machineCode}. Ces informations
-        sont cruciales pour le suivi TRG.
-      </p>
-      <form className="card" onSubmit={handleSubmit}>
-        <div className="field">
-          <label htmlFor="type">Type d&apos;arrêt *</label>
-          <select
-            id="type"
-            value={type}
-            onChange={(event) => setType(event.target.value)}
-            required
+
+      {isDown ? (
+        <div className="rounded-xl border border-outline-variant bg-surface shadow-sm">
+          <div className="flex flex-col gap-md p-md md:p-lg">
+            <div className="flex items-center gap-3 rounded-lg bg-error-container p-4">
+              <Icon name="warning" className="text-[24px] text-on-error-container" />
+              <p className="text-body-md text-on-error-container">
+                Un arrêt est déjà en cours sur {machineCode}.
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <Link
+                className="flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-label-caps text-label-caps font-bold tracking-wider text-on-primary shadow-sm transition-all hover:bg-primary-hover"
+                to="/"
+              >
+                <Icon name="play_arrow" />
+                Remettre en marche
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <form
+          className="flex flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface shadow-sm"
+          onSubmit={handleSubmit}
+        >
+          <div className="flex flex-col gap-md p-md md:p-lg">
+          <div className="flex flex-col gap-xs">
+            <label className="font-label-caps text-label-caps text-on-surface" htmlFor="typeArret">
+              Type d&apos;arrêt <span className="text-error">*</span>
+            </label>
+            <div className="relative">
+              <select
+                className="h-12 w-full cursor-pointer appearance-none rounded-md border-2 border-outline bg-surface px-4 pr-10 text-body-md text-on-surface shadow-sm focus:border-primary focus:ring-2 focus:ring-primary-container"
+                id="typeArret"
+                required
+                value={type}
+                onChange={(event) => setType(event.target.value)}
+              >
+                <option disabled value="">
+                  Sélectionner le type...
+                </option>
+                {DOWNTIME_TYPES.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+              <Icon
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline-variant"
+                name="expand_more"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-xs">
+            <label className="font-label-caps text-label-caps text-on-surface" htmlFor="composant">
+              Composant concerné <span className="text-error">*</span>
+            </label>
+            <div className="relative">
+              <select
+                className="h-12 w-full cursor-pointer appearance-none rounded-md border-2 border-outline bg-surface px-4 pr-10 text-body-md text-on-surface shadow-sm focus:border-primary focus:ring-2 focus:ring-primary-container"
+                id="composant"
+                required
+                value={componentId}
+                onChange={(event) => setComponentId(event.target.value)}
+              >
+                <option disabled value="">
+                  Sélectionner le composant...
+                </option>
+                {components.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+              <Icon
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline-variant"
+                name="expand_more"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-xs">
+            <label className="font-label-caps text-label-caps text-on-surface" htmlFor="cause">
+              Cause (5 Pourquoi)
+            </label>
+            <textarea
+              className="resize-none rounded-md border-2 border-outline bg-surface p-4 text-body-md text-on-surface shadow-sm focus:border-primary focus:ring-2 focus:ring-primary-container"
+              id="cause"
+              placeholder="Décrire la cause racine si connue..."
+              rows={4}
+              value={cause}
+              onChange={(event) => setCause(event.target.value)}
+            />
+          </div>
+
+          <div className="mt-sm flex flex-col gap-xs">
+            <span className="font-label-caps text-label-caps text-on-surface">Preuve visuelle</span>
+            <button
+              className="group flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low"
+              type="button"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-highest text-on-surface-variant group-hover:text-primary">
+                <Icon name="add_a_photo" className="text-[28px]" />
+              </div>
+              <span className="text-body-sm font-medium text-on-surface-variant group-hover:text-primary">
+                Prendre une photo de la panne
+              </span>
+            </button>
+          </div>
+          {error ? <p className="text-body-sm text-error">{error}</p> : null}
+        </div>
+
+        <div className="mt-auto flex flex-col-reverse gap-md border-t border-outline-variant bg-surface-container-lowest p-md md:flex-row md:p-lg">
+          <Link
+            className="flex min-h-12 flex-1 items-center justify-center rounded-lg border-2 border-outline font-label-caps text-label-caps font-bold tracking-wider text-on-surface hover:bg-surface-container-low md:min-h-14"
+            to="/"
           >
-            <option value="">Sélectionner le type...</option>
-            {DOWNTIME_TYPES.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="component">Composant concerné *</label>
-          <select
-            id="component"
-            value={componentId}
-            onChange={(event) => setComponentId(event.target.value)}
-            required
-          >
-            <option value="">Sélectionner le composant...</option>
-            {components.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="cause">Cause (5 Pourquoi)</label>
-          <textarea
-            id="cause"
-            rows={4}
-            value={cause}
-            onChange={(event) => setCause(event.target.value)}
-            placeholder="Décrire la cause racine si connue..."
-          />
-        </div>
-        <div className="mb-4 rounded border border-dashed border-[var(--color-outline)] p-4 text-center text-sm text-[var(--color-on-surface-variant)]">
-          Preuve visuelle — upload photo (Phase ultérieure)
-        </div>
-        {error ? <p className="mb-3 text-sm text-[var(--color-error)]">{error}</p> : null}
-        <button className="btn-danger mb-3" type="submit" disabled={mutation.isPending}>
-          VALIDER ET DÉMARRER LE CHRONO
-        </button>
-        <Link className="btn-outline" to="/">
-          ANNULER
-        </Link>
-      </form>
+            Annuler
+          </Link>
+            <button
+              className="flex min-h-14 flex-[2] items-center justify-center gap-2 rounded-lg bg-error font-label-caps text-[14px] font-bold tracking-wider text-on-error shadow-sm transition-all hover:bg-[#a3000b] active:scale-[0.98]"
+              disabled={mutation.isPending}
+              type="submit"
+            >
+              <Icon name="play_arrow" />
+              Valider et Démarrer le chrono
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
