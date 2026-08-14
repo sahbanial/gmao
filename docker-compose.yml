@@ -17,11 +17,8 @@ services:
       retries: 10
 
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
-      network: host
     container_name: gmao-api
+    image: gmao-api:latest
     environment:
       DATABASE_URL: postgresql://gmao:gmao@postgres:5432/gmao?schema=public
       JWT_SECRET: ${JWT_SECRET:-replace-with-a-long-random-secret}
@@ -35,12 +32,7 @@ services:
     restart: unless-stopped
 
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      network: host
-      args:
-        VITE_API_URL: /api
+    image: gmao-web:latest
     container_name: gmao-web
     ports:
       - "8080:80"
@@ -51,3 +43,4 @@ services:
 
 volumes:
   gmao_pg:
+

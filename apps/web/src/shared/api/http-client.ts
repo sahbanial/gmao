@@ -1,7 +1,6 @@
 import { clearAuthSession, getAccessToken } from "../auth/auth-session";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
-
+const API_URL = "https://gmao-api.family-crm.pro";
 export async function apiRequest<T>(
   path: string,
   init: RequestInit = {},
