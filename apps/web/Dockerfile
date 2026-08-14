@@ -12,7 +12,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/package.json
 COPY packages/shared/package.json ./packages/shared/package.json
 
-RUN pnpm install --frozen-lockfile --filter @gmao/web...
+RUN printf 'fetch-retries=5\nfetch-retry-mintimeout=20000\nfetch-retry-maxtimeout=120000\n' >> .npmrc \
+    && pnpm install --frozen-lockfile --filter @gmao/web...
 
 COPY packages/shared ./packages/shared
 COPY apps/web ./apps/web

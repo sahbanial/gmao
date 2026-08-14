@@ -17,7 +17,8 @@ COPY apps/api/package.json ./apps/api/package.json
 COPY packages/shared/package.json ./packages/shared/package.json
 COPY packages/database/package.json ./packages/database/package.json
 
-RUN pnpm install --frozen-lockfile --filter @gmao/api...
+RUN printf 'fetch-retries=5\nfetch-retry-mintimeout=20000\nfetch-retry-maxtimeout=120000\n' >> .npmrc \
+    && pnpm install --frozen-lockfile --filter @gmao/api...
 
 COPY packages/shared ./packages/shared
 COPY packages/database ./packages/database
