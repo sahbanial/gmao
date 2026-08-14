@@ -61,38 +61,34 @@ export function DashboardPage() {
       await queryClient.invalidateQueries({ queryKey: ["dashboard", "MA03"] });
     },
   });
-
+  const startedAt = query.data?.openDowntime?.startedAt;
+  const isDown = query.data?.machine.status === "DOWN";
+  useEffect(() => {
+    if (!isDown || !startedAt) {
+      setElapsed(0);
+      return;
+    }
+    const startTime = new Date(startedAt).getTime();
+    function updateElapsed(): void {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    }
+    updateElapsed();
+    const timer = window.setInterval(updateElapsed, 1000);
+    return () => window.clearInterval(timer);
+  }, [isDown, startedAt]);
   if (query.isLoading) {
     return <p className="p-margin-mobile text-body-md text-on-surface-variant">Chargement du dashboard...</p>;
   }
   if (query.isError || !query.data) {
     return <p className="p-margin-mobile text-body-md text-error">Impossible de charger le dashboard.</p>;
   }
-
   const data = query.data;
   const trsPct = data.kpis.trs.value * 100;
   const availPct = data.kpis.availability.value * 100;
-  const isDown = data.machine.status === "DOWN";
   const productionRatio =
     data.production && data.production.quantityProduced > 0
       ? data.production.quantityGood / data.production.quantityProduced
       : 0;
-
-  // Live elapsed timer for downtime
-  useEffect(() => {
-    if (!isDown || !data.openDowntime) return;
-    
-    const startTime = new Date(data.openDowntime.startedAt).getTime();
-    const updateElapsed = () => {
-      const nowTime = Date.now();
-      const diffSeconds = Math.floor((nowTime - startTime) / 1000);
-      setElapsed(diffSeconds);
-    };
-    
-    updateElapsed();
-    const timer = setInterval(updateElapsed, 1000);
-    return () => clearInterval(timer);
-  }, [isDown, data.openDowntime?.startedAt]);
 
   return (
     <div className="mx-auto w-full max-w-[1440px] p-margin-mobile md:p-margin-desktop">

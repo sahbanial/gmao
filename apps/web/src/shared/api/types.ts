@@ -58,6 +58,9 @@ export interface MachineDetail {
   readonly components: ReadonlyArray<{
     readonly id: string;
     readonly name: string;
+    readonly severity: number;
+    readonly frequency: number;
+    readonly detection: number;
     readonly criticality: number;
     readonly level: "NEGLIGIBLE" | "MEDIUM" | "HIGH";
   }>;

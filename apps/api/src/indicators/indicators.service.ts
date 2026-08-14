@@ -13,6 +13,7 @@ import {
   calculatePerformance,
   calculateQuality,
   calculateTrs,
+  buildUtcDayPeriod,
 } from "@gmao/shared";
 import {
   BadRequestException,
@@ -25,6 +26,7 @@ import type { ListIndicatorsQueryDto } from "./dto/list-indicators-query.dto";
 import type { RecalculateIndicatorsDto } from "./dto/recalculate-indicators.dto";
 
 const DOWNTIME_CHANGED_EVENT: string = "downtime.changed";
+const PRODUCTION_CHANGED_EVENT: string = "production.changed";
 const MILLISECONDS_PER_MINUTE: number = 60_000;
 const FAILURE_TYPES: readonly DowntimeType[] = [
   DowntimeType.MECHANICAL_FAILURE,
@@ -135,19 +137,32 @@ export class IndicatorsService {
   public async handleDowntimeChanged(
     event: DowntimeChangedEvent,
   ): Promise<void> {
-    const periodEnd: Date = new Date();
-    const periodStart: Date = new Date(periodEnd);
-    periodStart.setUTCHours(0, 0, 0, 0);
+    await this.recalculateCurrentUtcDay(event.machineId);
+  }
+
+  /**
+   * Recalculates the current UTC day after a production entry is saved.
+   */
+  @OnEvent(PRODUCTION_CHANGED_EVENT)
+  public async handleProductionChanged(
+    event: DowntimeChangedEvent,
+  ): Promise<void> {
+    await this.handleDowntimeChanged(event);
+  }
+
+  private async recalculateCurrentUtcDay(machineId: string): Promise<void> {
+    const now: Date = new Date();
+    const { periodStart } = buildUtcDayPeriod(now);
     try {
-      await this.recalculatePeriod(event.machineId, {
+      await this.recalculatePeriod(machineId, {
         periodStart,
-        periodEnd,
+        periodEnd: now,
       });
     } catch (error: unknown) {
       const message: string =
         error instanceof Error ? error.message : "Unknown recalculation error";
       this.logger.error(
-        `Unable to recalculate indicators for machine ${event.machineId}: ${message}`,
+        `Unable to recalculate indicators for machine ${machineId}: ${message}`,
       );
     }
   }

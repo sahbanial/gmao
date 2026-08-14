@@ -9,14 +9,23 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { CreateProductionEntryDto } from "./dto/create-production-entry.dto";
 import type { ListProductionQueryDto } from "./dto/list-production-query.dto";
+
+const PRODUCTION_CHANGED_EVENT: string = "production.changed";
+
+interface ProductionChangedEvent {
+  readonly machineId: string;
+}
 
 /**
  * Stores and retrieves production inputs used by the indicator engine.
  */
 @Injectable()
 export class ProductionService {
+  public constructor(private readonly eventEmitter: EventEmitter2) {}
+
   /**
    * Creates one production entry after validating its machine and period.
    */
@@ -37,13 +46,16 @@ export class ProductionService {
       });
     if (!machine)
       throw new NotFoundException(`Machine ${input.machineId} not found`);
-    return prisma.productionEntry.create({
+    const created: ProductionEntry = await prisma.productionEntry.create({
       data: {
         ...input,
         periodStart,
         periodEnd,
       },
     });
+    const event: ProductionChangedEvent = { machineId: created.machineId };
+    await this.eventEmitter.emitAsync(PRODUCTION_CHANGED_EVENT, event);
+    return created;
   }
 
   /**

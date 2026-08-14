@@ -1,130 +1,147 @@
 @import "tailwindcss";
 
-:root {
-  --color-primary: #00236f;
-  --color-primary-container: #1e3a8a;
-  --color-secondary-container: #fd761a;
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
   --color-background: #f8f9ff;
-  --color-surface: #ffffff;
+  --color-on-background: #0b1c30;
+  --color-surface: #f8f9ff;
+  --color-surface-bright: #f8f9ff;
+  --color-surface-dim: #cbdbf5;
+  --color-surface-container: #e5eeff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #dce9ff;
+  --color-surface-container-highest: #d3e4fe;
+  --color-surface-variant: #d3e4fe;
+  --color-surface-tint: #4059aa;
   --color-on-surface: #0b1c30;
   --color-on-surface-variant: #444651;
+  --color-outline: #757682;
+  --color-outline-variant: #c5c5d3;
+  --color-primary: #00236f;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1e3a8a;
+  --color-on-primary-container: #90a8ff;
+  --color-primary-fixed: #dce1ff;
+  --color-primary-fixed-dim: #b6c4ff;
+  --color-secondary: #9d4300;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fd761a;
+  --color-on-secondary-container: #5c2400;
+  --color-tertiary: #00311f;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #004a31;
+  --color-on-tertiary-container: #27c38a;
+  --color-tertiary-fixed: #6ffbbe;
   --color-error: #ba1a1a;
-  --color-outline: #c5c5d3;
-  --radius-default: 0.25rem;
-  font-family: Inter, system-ui, sans-serif;
-  color: var(--color-on-surface);
-  background: var(--color-background);
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-inverse-surface: #213145;
+  --color-inverse-on-surface: #eaf1ff;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 32px;
+  --container-login: 28rem;
+  --radius: 0.125rem;
+  --radius-sm: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
+  --color-secondary-fixed: #ffdbca;
+  --color-secondary-fixed-dim: #ffb690;
+  --color-inverse-primary: #b6c4ff;
+  --text-display-kpi: 48px;
+  --text-display-kpi--line-height: 56px;
+  --text-display-kpi--letter-spacing: -0.02em;
+  --text-display-kpi--font-weight: 700;
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--font-weight: 600;
+  --text-headline-lg-mobile: 24px;
+  --text-headline-lg-mobile--line-height: 32px;
+  --text-headline-lg-mobile--font-weight: 600;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 16px;
+  --text-label-caps--letter-spacing: 0.05em;
+  --text-label-caps--font-weight: 700;
+  --text-tabular-nums: 16px;
+  --text-tabular-nums--line-height: 24px;
+  --text-tabular-nums--font-weight: 500;
 }
 
-* {
-  box-sizing: border-box;
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-size: 24px;
+  line-height: 1;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   background: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--font-sans);
 }
 
 #root {
   min-height: 100vh;
 }
 
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 48px;
-  width: 100%;
-  border: 0;
-  border-radius: var(--radius-default);
-  background: var(--color-primary-container);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-danger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 48px;
-  width: 100%;
-  border: 0;
-  border-radius: var(--radius-default);
-  background: var(--color-error);
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn-outline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  width: 100%;
-  border: 2px solid var(--color-on-surface);
-  border-radius: var(--radius-default);
-  background: #fff;
-  color: var(--color-on-surface);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-outline);
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  margin-bottom: 1rem;
-}
-
-.field label {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.field input,
-.field select,
-.field textarea {
-  min-height: 44px;
-  border: 2px solid var(--color-outline);
-  border-radius: var(--radius-default);
-  padding: 0.625rem 0.75rem;
-  font: inherit;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  border-radius: var(--radius-default);
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
+.font-label-caps {
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-.badge-success {
-  background: #004a31;
-  color: #fff;
+progress {
+  appearance: none;
 }
 
-.badge-danger {
-  background: var(--color-error);
-  color: #fff;
+progress::-webkit-progress-bar {
+  background-color: #e5eeff;
+  border-radius: 9999px;
 }
 
-.badge-warning {
-  background: var(--color-secondary-container);
-  color: #5c2400;
+.progress-warning::-webkit-progress-value,
+.progress-bar-warning::-webkit-progress-value {
+  background-color: #f59e0b;
+}
+
+.progress-warning::-moz-progress-bar,
+.progress-bar-warning::-moz-progress-bar {
+  background-color: #f59e0b;
+}
+
+.progress-info::-webkit-progress-value,
+.progress-bar-info::-webkit-progress-value {
+  background-color: #3b82f6;
+}
+
+.progress-info::-moz-progress-bar,
+.progress-bar-info::-moz-progress-bar {
+  background-color: #3b82f6;
+}
+
+.progress-success::-webkit-progress-value,
+.progress-bar-success::-webkit-progress-value {
+  background-color: #10b981;
+}
+
+.progress-success::-moz-progress-bar,
+.progress-bar-success::-moz-progress-bar {
+  background-color: #10b981;
 }
