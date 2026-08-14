@@ -1,0 +1,10 @@
+{
+  "name": "@gmao/api",
+  "private": true,
+  "scripts": {
+    "build": "echo ok",
+    "test": "echo ok",
+    "dev": "echo ok",
+    "lint": "echo ok"
+  }
+}

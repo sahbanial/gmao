@@ -1,0 +1,18 @@
+{
+  "name": "gmao",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "db:generate": "pnpm --filter @gmao/database generate",
+    "db:migrate": "pnpm --filter @gmao/database migrate:dev",
+    "db:seed": "pnpm --filter @gmao/database seed"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.0"
+  }
+}
