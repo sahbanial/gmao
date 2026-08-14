@@ -1,18 +1,6 @@
-const TOKEN_KEY = "gmao.accessToken";
+import { clearAuthSession, getAccessToken } from "../auth/auth-session";
 
-export function getAccessToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-export function setAccessToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
-}
-
-export function clearAccessToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
-}
-
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
 export async function apiRequest<T>(
   path: string,
@@ -26,6 +14,11 @@ export async function apiRequest<T>(
     ...init,
     headers,
   });
+  if (response.status === 401) {
+    clearAuthSession();
+    window.location.assign("/login");
+    throw new Error("Unauthorized");
+  }
   if (!response.ok) {
     const text = await response.text();
     throw new Error(text || `HTTP ${response.status}`);

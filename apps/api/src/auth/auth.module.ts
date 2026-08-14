@@ -9,7 +9,7 @@ import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { JwtStrategy } from "./jwt.strategy";
 
-const ACCESS_TOKEN_TTL_SECONDS: number = 60 * 60;
+const ACCESS_TOKEN_TTL_SECONDS: number = 8 * 60 * 60;
 
 /**
  * Configures login, JWT validation, and reusable authorization guards.
