@@ -238,10 +238,9 @@ export class IndicatorsService {
     };
     return prisma.indicatorSnapshot.upsert({
       where: {
-        machineId_periodStart_periodEnd: {
+        machineId_periodStart: {
           machineId,
           periodStart: period.periodStart,
-          periodEnd: period.periodEnd,
         },
       },
       create: {
