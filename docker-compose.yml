@@ -20,6 +20,7 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+      network: host
     container_name: gmao-api
     environment:
       DATABASE_URL: postgresql://gmao:gmao@postgres:5432/gmao?schema=public
@@ -37,6 +38,7 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      network: host
       args:
         VITE_API_URL: /api
     container_name: gmao-web
