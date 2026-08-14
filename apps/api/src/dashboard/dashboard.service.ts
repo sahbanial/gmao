@@ -78,6 +78,14 @@ export class DashboardService {
             quantityProduced: latestProduction.quantityProduced,
           }
         : null,
+      openDowntime: openDowntime
+        ? {
+            id: openDowntime.id,
+            type: openDowntime.type,
+            startedAt: openDowntime.startedAt.toISOString(),
+            cause: openDowntime.cause,
+          }
+        : null,
       recentActivity: recentDowntimes.map((item) => ({
         id: item.id,
         type: item.type,

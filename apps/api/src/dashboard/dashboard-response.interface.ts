@@ -17,6 +17,12 @@ export interface DashboardResponse {
     readonly quantityGood: number;
     readonly quantityProduced: number;
   } | null;
+  readonly openDowntime: {
+    readonly id: string;
+    readonly type: string;
+    readonly startedAt: string;
+    readonly cause: string | null;
+  } | null;
   readonly recentActivity: ReadonlyArray<{
     readonly id: string;
     readonly type: string;
