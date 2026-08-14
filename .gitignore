@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.turbo/
+coverage/
+.env
+.env.*
+!.env.example
+.superpowers/
+.worktrees/
+*.log
+.DS_Store
+.cursor/mcp.json
+.cursor/stitch-mcp-proxy.mjs
