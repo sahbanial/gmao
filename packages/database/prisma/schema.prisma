@@ -130,6 +130,7 @@ model IndicatorSnapshot {
   calculatedAt DateTime @default(now())
 
   @@index([machineId, periodStart])
+  @@unique([machineId, periodStart, periodEnd])
 }
 
 model SystemSetting {

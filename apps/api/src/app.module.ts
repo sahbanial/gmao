@@ -4,7 +4,9 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 import { AuthModule } from "./auth/auth.module";
 import { DowntimesModule } from "./downtimes/downtimes.module";
 import { HealthController } from "./health/health.controller";
+import { IndicatorsModule } from "./indicators/indicators.module";
 import { MachinesModule } from "./machines/machines.module";
+import { ProductionModule } from "./production/production.module";
 
 /**
  * Configures the API application.
@@ -19,6 +21,8 @@ import { MachinesModule } from "./machines/machines.module";
     AuthModule,
     MachinesModule,
     DowntimesModule,
+    ProductionModule,
+    IndicatorsModule,
   ],
   controllers: [HealthController],
 })
