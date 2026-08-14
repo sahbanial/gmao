@@ -62,3 +62,17 @@ export interface MachineDetail {
     readonly level: "NEGLIGIBLE" | "MEDIUM" | "HIGH";
   }>;
 }
+
+export interface DowntimeRow {
+  readonly id: string;
+  readonly type: string;
+  readonly startedAt: string;
+  readonly endedAt: string | null;
+  readonly durationMin: number | null;
+  readonly cause: string | null;
+  readonly component: { readonly name: string } | null;
+  readonly declarant: {
+    readonly firstName: string;
+    readonly lastName: string;
+  };
+}

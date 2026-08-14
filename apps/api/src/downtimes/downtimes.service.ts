@@ -141,17 +141,40 @@ export class DowntimesService {
   /**
    * Lists downtime declarations matching optional filters.
    */
-  public async getAll(query: ListDowntimesQueryDto): Promise<Downtime[]> {
+  public async getAll(query: ListDowntimesQueryDto): Promise<Array<Downtime & {
+    component: { name: string } | null;
+    declarant: { firstName: string; lastName: string };
+  }>> {
     const from: Date | undefined = query.from ? new Date(query.from) : undefined;
     const to: Date | undefined = query.to ? new Date(query.to) : undefined;
     if (from && to && from > to)
       throw new BadRequestException("from must be before or equal to to");
+
+    let machineId = query.machineId;
+    
+    // If machineCode is provided, look up the machine ID
+    if (query.machineCode) {
+      const machine = await prisma.machine.findUnique({
+        where: { code: query.machineCode },
+        select: { id: true },
+      });
+      if (!machine) {
+        throw new NotFoundException(`Machine with code ${query.machineCode} not found`);
+      }
+      machineId = machine.id;
+    }
+
     const where: Prisma.DowntimeWhereInput = {
-      machineId: query.machineId,
+      machineId,
       startedAt: { gte: from, lte: to },
     };
+    
     return prisma.downtime.findMany({
       where,
+      include: {
+        component: { select: { name: true } },
+        declarant: { select: { firstName: true, lastName: true } },
+      },
       orderBy: { startedAt: "desc" },
     });
   }

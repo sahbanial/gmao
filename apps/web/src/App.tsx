@@ -3,7 +3,10 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { LoginPage } from "./features/auth/login-page";
 import { DashboardPage } from "./features/dashboard/dashboard-page";
 import { DeclareDowntimePage } from "./features/downtimes/declare-downtime-page";
+import { DowntimeHistoryPage } from "./features/downtimes/downtime-history-page";
 import { MachineDetailPage } from "./features/machines/machine-detail-page";
+import { ReportPage } from "./features/reports/report-page";
+import { TasksPage } from "./features/tasks/tasks-page";
 import { AppShell } from "./shared/layout/app-shell";
 import { ProtectedRoute } from "./shared/routing/protected-route";
 
@@ -20,11 +23,9 @@ export function App() {
               <Route index element={<DashboardPage />} />
               <Route path="/machines/MA03" element={<MachineDetailPage />} />
               <Route path="/downtimes/new" element={<DeclareDowntimePage />} />
-              <Route
-                path="/report"
-                element={<p>Analyse Pareto & AMDEC — Phase 3</p>}
-              />
-              <Route path="/tasks" element={<p>Interventions — Phase 2</p>} />
+              <Route path="/downtimes" element={<DowntimeHistoryPage />} />
+              <Route path="/report" element={<ReportPage />} />
+              <Route path="/tasks" element={<TasksPage />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

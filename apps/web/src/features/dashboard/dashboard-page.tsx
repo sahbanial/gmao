@@ -267,9 +267,12 @@ export function DashboardPage() {
             })}
           </div>
           <div className="border-t border-outline-variant p-sm">
-            <button className="w-full rounded-lg py-2 font-label-caps text-label-caps text-primary hover:bg-surface-container-low" type="button">
+            <Link 
+              to="/downtimes" 
+              className="block w-full rounded-lg py-2 text-center font-label-caps text-label-caps text-primary hover:bg-surface-container-low"
+            >
               VOIR TOUT L&apos;HISTORIQUE
-            </button>
+            </Link>
           </div>
         </div>
       </div>

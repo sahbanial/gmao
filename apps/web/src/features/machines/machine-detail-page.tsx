@@ -1,6 +1,5 @@
 import {
   createColumnHelper,
-  flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -10,6 +9,7 @@ import { Link } from "react-router-dom";
 import { apiRequest } from "../../shared/api/http-client";
 import type { DashboardResponse, MachineDetail } from "../../shared/api/types";
 import { Icon } from "../../shared/ui/icon";
+import { DataTable } from "../../shared/ui/data-table";
 
 type ComponentRow = MachineDetail["components"][number];
 
@@ -212,35 +212,7 @@ export function MachineDetailPage() {
             <h3 className="text-[18px] font-semibold text-on-surface">Critical Components (AMDEC)</h3>
             <Icon name="precision_manufacturing" className="text-on-surface-variant" />
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left">
-              <thead>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id} className="border-b border-outline-variant bg-surface-bright font-label-caps text-label-caps uppercase text-on-surface-variant">
-                    {headerGroup.headers.map((header) => (
-                      <th key={header.id} className="p-md font-bold">
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody className="text-body-sm">
-                {table.getRowModel().rows.map((row, index) => (
-                  <tr
-                    key={row.id}
-                    className={`border-b border-neutral-100 ${index % 2 === 1 ? "bg-surface-bright" : ""}`}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className={cell.column.id === "name" ? "p-0" : "p-md"}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable table={table} emptyLabel="Aucun composant trouvé." />
         </div>
       </div>
 

@@ -10,6 +10,11 @@ export class ListDowntimesQueryDto {
   public readonly machineId?: string;
 
   @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  public readonly machineCode?: string;
+
+  @IsOptional()
   @IsDateString()
   public readonly from?: string;
 
