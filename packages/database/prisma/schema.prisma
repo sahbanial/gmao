@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OPERATOR
+  TECHNICIAN
+  MANAGER
+  ADMIN
+}
+
+enum DowntimeType {
+  MECHANICAL_FAILURE
+  VORSCHUB_ADJUSTMENT
+  SERIES_CHANGE
+  ELECTRICAL_FAILURE
+  QUALITY_STOP
+  PLANNED_STOP
+  OTHER
+}
+
+enum CriticalityLevel {
+  NEGLIGIBLE
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id                String     @id @default(cuid())
+  employeeCode      String     @unique
+  firstName         String
+  lastName          String
+  email             String     @unique
+  passwordHash      String
+  role              Role
+  workshop          String?
+  isActive          Boolean    @default(true)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  declaredDowntimes Downtime[] @relation("DowntimeDeclarant")
+  auditLogs         AuditLog[]
+}
+
+model Machine {
+  id                String              @id @default(cuid())
+  code              String              @unique
+  designation       String
+  workshop          String
+  line              String
+  commissionedAt    DateTime?
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  components        Component[]
+  downtimes         Downtime[]
+  productionEntries ProductionEntry[]
+  indicators        IndicatorSnapshot[]
+}
+
+model Component {
+  id          String           @id @default(cuid())
+  machineId   String
+  machine     Machine          @relation(fields: [machineId], references: [id])
+  name        String
+  severity    Int
+  frequency   Int
+  detection   Int
+  criticality Int
+  level       CriticalityLevel
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  downtimes   Downtime[]
+
+  @@index([machineId])
+}
+
+model Downtime {
+  id          String       @id @default(cuid())
+  machineId   String
+  machine     Machine      @relation(fields: [machineId], references: [id])
+  componentId String?
+  component   Component?   @relation(fields: [componentId], references: [id])
+  type        DowntimeType
+  startedAt   DateTime
+  endedAt     DateTime?
+  durationMin Int?
+  cause       String?
+  photoUrl    String?
+  declarantId String
+  declarant   User         @relation("DowntimeDeclarant", fields: [declarantId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([machineId, startedAt])
+}
+
+model ProductionEntry {
+  id                  String   @id @default(cuid())
+  machineId           String
+  machine             Machine  @relation(fields: [machineId], references: [id])
+  workOrderCode       String?
+  periodStart         DateTime
+  periodEnd           DateTime
+  theoreticalCycleSec Float
+  quantityProduced    Int
+  quantityGood        Int
+  openingMinutes      Int
+  createdAt           DateTime @default(now())
+
+  @@index([machineId, periodStart])
+}
+
+model IndicatorSnapshot {
+  id           String   @id @default(cuid())
+  machineId    String
+  machine      Machine  @relation(fields: [machineId], references: [id])
+  periodStart  DateTime
+  periodEnd    DateTime
+  mtbfHours    Float
+  mttrMinutes  Float
+  availability Float
+  trs          Float
+  performance  Float
+  quality      Float
+  calculatedAt DateTime @default(now())
+
+  @@index([machineId, periodStart])
+}
+
+model SystemSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String?
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
