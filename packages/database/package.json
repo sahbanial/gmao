@@ -12,10 +12,18 @@
     "migrate:dev": "prisma migrate dev",
     "seed": "prisma db seed"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
-    "@prisma/client": "^6.19.3"
+    "@gmao/shared": "workspace:^",
+    "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0"
   },
   "devDependencies": {
-    "prisma": "6"
+    "@types/bcrypt": "^6.0.0",
+    "prisma": "6",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0"
   }
 }

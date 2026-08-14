@@ -1,10 +1,32 @@
 {
   "name": "@gmao/web",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "build": "echo ok",
-    "test": "echo ok",
-    "dev": "echo ok",
-    "lint": "echo ok"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "tsc -b --pretty false",
+    "preview": "vite preview",
+    "test": "echo ok"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.101.4",
+    "@tanstack/react-table": "^8.21.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "oxlint": "^1.75.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~5.8.3",
+    "vite": "^6.4.3",
+    "vite-plugin-pwa": "^1.3.0"
   }
 }
