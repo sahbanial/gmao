@@ -22,6 +22,7 @@ interface MachineWithComponents extends Machine {
  * Exposes machine catalog and AMDEC component endpoints.
  */
 @Controller("machines")
+@UseGuards(JwtAuthGuard)
 export class MachinesController {
   public constructor(private readonly machinesService: MachinesService) {}
 
